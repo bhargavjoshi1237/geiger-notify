@@ -46,6 +46,8 @@ function humanize(value) {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
 }
 
+// Display info for an app or category id. Ids outside the suite lists still render:
+// the label is humanized from the id ("time_off" → "Time off") with a generic icon.
 export function appInfo(app) {
   return SUITE_APPS[app] || { label: humanize(app) || "App", icon: "AppWindow", href: null };
 }
