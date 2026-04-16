@@ -286,8 +286,8 @@ or the service role can do this.
 
 ### Reading and state from code
 
-`list({ view, app, apps, category, categories, type, organizationId, projectId, groupKey, before, limit })`,
-`get(id)`, `unreadCounts()`, `markRead(ids)`, `markUnread`, `markSeen`, `markAllSeen()`,
+`list({ view, app, apps, category, categories, type, organizationId, projectId, groupKey, userId, before, limit })`,
+`get(id)`, `unreadCounts({ organizationId })`, `markRead(ids)`, `markUnread`, `markSeen`, `markAllSeen()`,
 `markAllRead({ app, category, organizationId })`, `archive`, `unarchive`, `dismiss`, and
 `subscribe(userId, { onChange, onStatus })`.
 
