@@ -111,6 +111,7 @@ anywhere else. The bell includes:
 | Prop | Default | |
 |---|---|---|
 | `supabase` | — | app session client (not needed inside a provider) |
+| `notifier` | — | a ready `createNotifier()` instance to use instead of building one from `supabase` |
 | `app` | `null` | the current app id |
 | `scope` | all apps | `{ apps, categories, organizationId }`: what this bell shows |
 | `onReceive(n)` | — | fires once per new unread arrival (toast, title badge…) |
