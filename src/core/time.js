@@ -36,6 +36,7 @@ export function formatRelativeTime(value, now = Date.now()) {
     : { month: "short", day: "numeric", year: "numeric" });
 }
 
+// Full local date and time for tooltips ("Oct 6, 2026, 8:01 PM" in en-US); "" when unparseable.
 export function formatFullTime(value) {
   const date = toDate(value);
   return date ? date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
