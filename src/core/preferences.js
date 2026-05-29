@@ -28,6 +28,7 @@ export function findRule(preferences, { app = ANY, category = ANY, type = ANY } 
   return (preferences || []).find((rule) => rule.app === app && rule.category === category && rule.type === type) || null;
 }
 
+// Whether one rule mutes right now: it is a mute and its snooze (mutedUntil) hasn't passed.
 export function isRuleMuted(rule, now = Date.now()) {
   return Boolean(rule && rule.muted && isLive(rule, now));
 }
