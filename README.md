@@ -308,6 +308,9 @@ await notify.mute({}, { until: new Date(Date.now() + 8 * 3600e3).toISOString() }
 await notify.unmute({ app: "events" });                                  // remove the rule
 ```
 
+`listPreferences()` returns the signed-in user's rules, and `clearPreference(scope)` deletes one
+(it's what `unmute` calls) so broader rules apply again.
+
 The bell's settings panel writes app-level and category-level rules, plus a master switch. Mutes are
 applied when a notification is sent, so a muted notification is never delivered. Urgent ones always get through.
 
