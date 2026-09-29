@@ -412,6 +412,8 @@ export function NotificationsProvider({
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
 }
 
+// The provider's value, or null outside one. useNotifications() is the same but throws
+// instead, for components that only make sense under a provider.
 export function useNotificationsContext() {
   return useContext(NotificationsContext);
 }
