@@ -278,7 +278,7 @@ In Next.js, wrap sends in `after()` so they never delay or fail the mutation (se
 | `groupKey` | thread related notifications |
 | `dedupeKey` + `onConflict` | idempotency per app. `"skip"` (default) returns the live one; `"replace"` rewrites it |
 | `resurface` | with `replace`: `true` (default) marks it unread again and moves it to the top |
-| `expiresAt` / `expiresIn` | hide after a time (`"30m"`, `"12h"`, `"7d"`, ms) |
+| `expiresAt` / `expiresIn` | hide after a time (`"45s"`, `"30m"`, `"12h"`, `"7d"`, `"2w"`, ms) |
 | `includeActor` | also deliver to the sender in an org fan-out (default `false`) |
 | `actorId`, `actor` | service role only: who did it, plus a `{ name, avatarUrl }` override |
 
