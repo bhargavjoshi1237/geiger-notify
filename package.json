@@ -1,0 +1,42 @@
+{
+  "name": "@geiger/notify",
+  "version": "0.1.0",
+  "description": "Cross-app notifications for the Geiger suite: send to users or organizations, receive live on the shared Supabase session, and render the suite bell.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.js",
+    "./react": "./src/react/index.js",
+    "./server": "./src/server.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "peerDependencies": {
+    "@geiger/ui": "*",
+    "@supabase/supabase-js": "^2.45.0",
+    "lucide-react": ">=0.500.0",
+    "react": ">=19"
+  },
+  "peerDependenciesMeta": {
+    "@geiger/ui": {
+      "optional": true
+    },
+    "@supabase/supabase-js": {
+      "optional": true
+    },
+    "lucide-react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  }
+}
