@@ -7,34 +7,33 @@ import { LucideIcon } from "@geiger/ui/icon-picker";
 import { cn } from "@geiger/ui/lib/utils";
 import { appInfo, categoryInfo } from "../core/constants.js";
 import { formatFullTime, formatRelativeTime } from "../core/time.js";
-import { PRIORITY_STYLES, TONE_STYLES, initials } from "./utils.js";
+import { PRIORITY_STYLES, TONE_ICON_STYLES, initials } from "./utils.js";
 
 function Leading({ notification }) {
   const icon = notification.icon || categoryInfo(notification.category).icon;
-  const chip = (
-    <div
-      className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-lg border",
-        TONE_STYLES[notification.tone] || TONE_STYLES.neutral,
-      )}
-    >
-      <LucideIcon name={icon} className="size-4" strokeWidth={1.8} />
-    </div>
-  );
-
+  const tone = TONE_ICON_STYLES[notification.tone] || TONE_ICON_STYLES.neutral;
   const image = notification.imageUrl || notification.actor?.avatarUrl;
-  if (!image && !notification.actor?.name) return chip;
+
+  if (!image && !notification.actor?.name) {
+    return (
+      <div className={cn("flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background", tone)}>
+        <LucideIcon name={icon} className="size-4" strokeWidth={1.8} />
+      </div>
+    );
+  }
 
   return (
-    <div className="relative size-9 shrink-0">
-      <Avatar className="size-9">
+    <div className="relative size-8 shrink-0">
+      <Avatar className="size-8">
         {image ? <AvatarImage src={image} alt="" /> : null}
-        <AvatarFallback className="text-[11px]">{initials(notification.actor?.name)}</AvatarFallback>
+        <AvatarFallback className="border border-border bg-background text-[11px] text-muted-foreground">
+          {initials(notification.actor?.name)}
+        </AvatarFallback>
       </Avatar>
       <span
         className={cn(
-          "absolute -bottom-1 -right-1 flex size-[18px] items-center justify-center rounded-full border bg-surface-dialog",
-          TONE_STYLES[notification.tone] || TONE_STYLES.neutral,
+          "absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-background",
+          tone,
         )}
       >
         <LucideIcon name={icon} className="size-2.5" strokeWidth={2.2} />
@@ -51,7 +50,7 @@ function RowAction({ label, onClick, children }) {
       size="icon-xs"
       aria-label={label}
       title={label}
-      className="text-text-secondary hover:text-foreground"
+      className="text-muted-foreground hover:bg-surface-active hover:text-foreground"
       onClick={(event) => {
         event.stopPropagation();
         onClick();
@@ -89,37 +88,36 @@ export function NotificationItem({
         }
       }}
       className={cn(
-        "group relative flex cursor-pointer gap-3 px-4 py-3 outline-none transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover",
+        "group relative flex cursor-pointer gap-3 rounded-lg px-2.5 py-2.5 outline-none transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover",
         className,
       )}
     >
-      {unread ? (
-        <span aria-hidden className="pointer-events-none absolute left-1.5 top-[26px] size-1.5 rounded-full bg-notification-dot" />
-      ) : null}
-
       <Leading notification={notification} />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <p
             className={cn(
-              "line-clamp-2 text-[13px] font-medium leading-snug",
-              unread ? "text-foreground" : "text-text-secondary",
+              "line-clamp-2 text-[13px] leading-snug",
+              unread ? "font-medium text-foreground" : "text-muted-foreground",
             )}
           >
             {notification.title}
           </p>
-          <time
-            dateTime={notification.notifiedAt || undefined}
-            title={formatFullTime(notification.notifiedAt)}
-            className="mt-px shrink-0 text-[11px] tabular-nums text-text-tertiary transition-opacity group-hover:opacity-0 group-focus-within:opacity-0"
-          >
-            {formatRelativeTime(notification.notifiedAt)}
-          </time>
+          <span className="mt-px flex shrink-0 items-center gap-1.5 transition-opacity group-hover:opacity-0 group-focus-within:opacity-0">
+            <time
+              dateTime={notification.notifiedAt || undefined}
+              title={formatFullTime(notification.notifiedAt)}
+              className="text-[11px] tabular-nums text-text-secondary"
+            >
+              {formatRelativeTime(notification.notifiedAt)}
+            </time>
+            {unread ? <span aria-hidden className="size-1.5 rounded-full bg-notification-dot" /> : null}
+          </span>
         </div>
 
         {notification.body ? (
-          <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">{notification.body}</p>
+          <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{notification.body}</p>
         ) : null}
 
         {notification.actions.length ? (
@@ -141,7 +139,7 @@ export function NotificationItem({
           </div>
         ) : null}
 
-        <div className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[11px] text-text-tertiary">
+        <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[11px] text-text-secondary">
           {showApp ? (
             <span className="inline-flex shrink-0 items-center gap-1">
               <LucideIcon name={source.icon} className="size-3" />
@@ -162,7 +160,8 @@ export function NotificationItem({
         </div>
       </div>
 
-      <div className="absolute right-2 top-2 hidden items-center gap-0.5 rounded-md border border-border bg-surface-dialog p-0.5 shadow-sm group-hover:flex group-focus-within:flex">
+      {/* Same surface as the hovered row, so the actions read as part of it rather than a floating toolbar. */}
+      <div className="absolute right-1.5 top-1.5 hidden items-center gap-0.5 rounded-md bg-surface-hover group-hover:flex group-focus-within:flex">
         {onToggleRead ? (
           <RowAction label={unread ? "Mark as read" : "Mark as unread"} onClick={() => onToggleRead(notification)}>
             {unread ? <Check /> : <Circle />}

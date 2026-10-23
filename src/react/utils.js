@@ -7,6 +7,15 @@ export const TONE_STYLES = {
   danger: "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400",
 };
 
+// Icon-only tone for the bell's minimal rows: colour without the tinted chip.
+export const TONE_ICON_STYLES = {
+  neutral: "text-muted-foreground",
+  info: "text-blue-600 dark:text-blue-400",
+  success: "text-emerald-600 dark:text-emerald-400",
+  warning: "text-amber-600 dark:text-amber-400",
+  danger: "text-red-600 dark:text-red-400",
+};
+
 export const PRIORITY_STYLES = {
   high: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
   urgent: "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400",
