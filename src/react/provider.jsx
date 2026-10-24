@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { createNotifier } from "../core/client.js";
 import { findRule, isRuleMuted, resolveMuted } from "../core/preferences.js";
 import { ANY } from "../core/constants.js";
+import { SOUND_STORAGE_KEY, chime, isSoundEnabled, setSoundEnabled as storeSoundEnabled, unlockSound } from "../core/sound.js";
 
 const NotificationsContext = createContext(null);
 const EMPTY_COUNTS = { total: 0, unseen: 0, apps: {}, categories: {} };
@@ -48,6 +49,7 @@ function deliveryPatch(row) {
 // unread counts, live updates, optimistic read/archive state and mute preferences.
 // `supabase` must be the app's stable session client; `scope` narrows what is shown
 // ({ apps, categories, organizationId }); `onReceive` fires for each new arrival.
+// `sound` plays the Counter chime for new arrivals (not low priority); each user can still turn it off in settings.
 export function NotificationsProvider({
   supabase,
   app = null,
@@ -55,6 +57,7 @@ export function NotificationsProvider({
   scope: scopeProp,
   pageSize = 20,
   realtime = true,
+  sound = true,
   onReceive,
   onError,
   children,
@@ -73,13 +76,43 @@ export function NotificationsProvider({
   const [loadingMore, setLoadingMore] = useState(false);
   const [counts, setCounts] = useState(EMPTY_COUNTS);
   const [preferences, setPreferences] = useState(null);
+  // The user's sound switch lives in this browser's storage; read after mount so server and client render alike.
+  const [soundOn, setSoundOn] = useState(true);
+  const chimes = Boolean(sound) && soundOn;
 
-  const callbacks = useRef({ onReceive, onError });
+  const callbacks = useRef({ onReceive, onError, chimes });
   const live = useRef({ view, appFilter, scope, items: feed.items });
   useEffect(() => {
-    callbacks.current = { onReceive, onError };
+    callbacks.current = { onReceive, onError, chimes };
     live.current = { view, appFilter, scope, items: feed.items };
   });
+
+  // Follow the switch across tabs.
+  useEffect(() => {
+    if (!sound) return undefined;
+    setSoundOn(isSoundEnabled());
+    const sync = (event) => {
+      if (event.key === null || event.key === SOUND_STORAGE_KEY) setSoundOn(isSoundEnabled());
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, [sound]);
+
+  // Browsers allow sound only after a gesture, so unlock audio on the first pointer or key press.
+  useEffect(() => {
+    if (!chimes) return undefined;
+    const off = () => {
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+    };
+    const unlock = () => {
+      off();
+      unlockSound();
+    };
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+    return off;
+  }, [chimes]);
 
   // The signed-in user comes from the app's session; INITIAL_SESSION fires immediately.
   useEffect(() => {
@@ -181,7 +214,13 @@ export function NotificationsProvider({
           return { ...f, items: visible ? sortFeed([notification, ...rest]) : rest };
         });
         const isNew = event === "insert" || (event === "update" && (!known || resurfaced));
-        if (isNew && !notification.isRead) callbacks.current.onReceive?.(notification);
+        if (isNew && !notification.isRead) {
+          callbacks.current.onReceive?.(notification);
+          // Keyed on notifiedAt too, so a resurfaced notification chimes again; tabs share the key and play it once.
+          if (callbacks.current.chimes && notification.priority !== "low") {
+            void chime(`${notification.id}:${notification.notifiedAt}`);
+          }
+        }
       },
       onStatus: (status, error) => {
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") callbacks.current.onError?.(error || new Error(status), "realtime");
@@ -317,6 +356,13 @@ export function NotificationsProvider({
     [notifier, loadPreferences],
   );
 
+  // Runs from the settings switch, a user gesture, so turning sound on can play the chime as a preview.
+  const setSoundEnabled = useCallback((on) => {
+    storeSoundEnabled(on);
+    setSoundOn(on);
+    if (on) void chime();
+  }, []);
+
   const isMuted = useCallback((target) => resolveMuted(preferences || [], target), [preferences]);
   const isRuleOn = useCallback((target) => isRuleMuted(findRule(preferences || [], target)), [preferences]);
 
@@ -358,6 +404,9 @@ export function NotificationsProvider({
     setMuted,
     isMuted,
     isRuleMuted: isRuleOn,
+    sound: Boolean(sound),
+    soundEnabled: chimes,
+    setSoundEnabled,
   };
 
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;

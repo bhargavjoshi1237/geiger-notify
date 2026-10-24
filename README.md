@@ -113,7 +113,8 @@ anywhere else. The bell includes:
 | `supabase` | — | app session client (not needed inside a provider) |
 | `app` | `null` | the current app id |
 | `scope` | all apps | `{ apps, categories, organizationId }`: what this bell shows |
-| `onReceive(n)` | — | fires once per new unread arrival (toast, sound, title badge…) |
+| `onReceive(n)` | — | fires once per new unread arrival (toast, title badge…) |
+| `sound` | `true` | plays the suite chime for new arrivals (see [Sound](#sound)) |
 | `onError(error, scope)` | — | failed mutations (`scope`: `markRead`, `archive`…, `realtime`) |
 | `onNavigate(url, n)` | same tab for root-relative URLs, new tab for other origins | override navigation, e.g. `router.push` for this app's own links |
 | `onAction(n, action)` | — | return `true` to take over an action button; otherwise it marks read and follows `action.url` |
@@ -123,6 +124,25 @@ anywhere else. The bell includes:
 | `showAppFilter`, `showSettings` | `true` | toggle chrome |
 | `preferenceApps`, `preferenceCategories` | suite defaults | rows listed in settings |
 | `pageSize`, `realtime` | `20`, `true` | feed tuning |
+
+### Sound
+
+New unread arrivals play **Counter**, the suite chime: two soft ticks, then a tone. It's synthesized
+with Web Audio, so there's no file to host. The rules:
+
+- **Which arrivals:** every priority except `low`. A notification that resurfaces with
+  `onConflict: "replace"` chimes again.
+- **Once per arrival:** with Dash, Notes and Events open in three tabs, only one tab plays it. Tabs
+  coordinate through `localStorage` and the Web Locks API on the shared origin, and a visible tab
+  gets the first chance.
+- **At most once every 3 seconds** (`CHIME_GAP_MS`) across all tabs, so a burst chimes once.
+- **Only after a gesture:** browsers block sound until the user has clicked or typed on the page.
+  The provider unlocks audio on the first pointer or key press.
+
+Users turn it off with **Play a sound** in the bell's settings. The choice is saved per browser in
+`localStorage` and shared by every suite app. Pass `sound={false}` to the bell or provider to
+silence an app and hide that switch. To play the chime yourself, import `chime()` from
+`@geiger/notify`.
 
 ### Custom renderers
 
@@ -158,6 +178,7 @@ exported as `NotificationItem` for reuse.
 - counts: `counts`, `unreadCount`
 - actions: `markRead`, `markUnread`, `toggleRead`, `archive`, `unarchive`, `dismiss`, `markAllRead`, `markAllSeen`
 - preferences: `preferences`, `loadPreferences`, `setMuted`, `isMuted`, `isRuleMuted`
+- sound: `sound` (the prop), `soundEnabled`, `setSoundEnabled`
 - the session: `notifier`, `userId`, `signedIn`
 
 Every mutation is optimistic. On failure the provider reloads from the server and calls `onError`.

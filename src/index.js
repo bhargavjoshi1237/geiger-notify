@@ -20,3 +20,4 @@ export {
 } from "./core/normalize.js";
 export { resolveMuted, findRule, isRuleMuted } from "./core/preferences.js";
 export { parseDuration, resolveExpiresAt, formatRelativeTime, formatFullTime, dayBucket } from "./core/time.js";
+export { CHIME_GAP_MS, chime, unlockSound, isSoundEnabled, setSoundEnabled } from "./core/sound.js";

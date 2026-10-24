@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { BellRing } from "lucide-react";
+import { BellRing, Volume2 } from "lucide-react";
 import { LucideIcon } from "@geiger/ui/icon-picker";
 import { LogoLoading } from "@geiger/ui/logo-loading";
 import { Switch } from "@geiger/ui/switch";
@@ -38,10 +38,10 @@ function SectionLabel({ children }) {
   );
 }
 
-// Per-user mute rules: a master switch, then per-app and per-category switches.
-// Switches read "enabled"; turning one off writes a mute rule, on removes it.
+// Per-user mute rules: a master switch, the sound switch, then per-app and per-category switches.
+// Switches read "enabled"; turning one off writes a mute rule, on removes it. Sound is per browser, not a rule.
 export function NotificationPreferences({ apps = DEFAULT_APPS, categories = DEFAULT_CATEGORIES, className }) {
-  const { preferences, loadPreferences, setMuted, isRuleMuted } = useNotifications();
+  const { preferences, loadPreferences, setMuted, isRuleMuted, sound, soundEnabled, setSoundEnabled } = useNotifications();
 
   useEffect(() => {
     if (preferences === null) loadPreferences();
@@ -66,6 +66,15 @@ export function NotificationPreferences({ apps = DEFAULT_APPS, categories = DEFA
         checked={!paused}
         onCheckedChange={(on) => setMuted({}, !on)}
       />
+      {sound ? (
+        <PreferenceRow
+          icon={<Volume2 className="size-3.5" />}
+          label="Play a sound"
+          description="When a notification arrives, on this device."
+          checked={soundEnabled}
+          onCheckedChange={setSoundEnabled}
+        />
+      ) : null}
 
       {apps.length ? <SectionLabel>Apps</SectionLabel> : null}
       {apps.map((key) => {

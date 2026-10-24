@@ -314,7 +314,7 @@ function BellPanel({
 
 // Suite bell. Inside a <NotificationsProvider> it uses that feed; standalone it
 // builds its own from `supabase` (the app's session client) and provider props.
-export function NotificationBell({ supabase, app, notifier, scope, pageSize, realtime, onReceive, onError, ...panelProps }) {
+export function NotificationBell({ supabase, app, notifier, scope, pageSize, realtime, sound, onReceive, onError, ...panelProps }) {
   const context = useNotificationsContext();
   if (context) return <BellPanel {...panelProps} />;
   return (
@@ -325,6 +325,7 @@ export function NotificationBell({ supabase, app, notifier, scope, pageSize, rea
       scope={scope}
       pageSize={pageSize}
       realtime={realtime}
+      sound={sound}
       onReceive={onReceive}
       onError={onError}
     >
