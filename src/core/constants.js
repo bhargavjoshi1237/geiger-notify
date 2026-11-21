@@ -36,7 +36,6 @@ export const SUITE_APPS = {
   campaign: { label: "Campaign", icon: "Megaphone", href: "/campaign" },
   comms: { label: "Comms", icon: "MessagesSquare", href: "/comms" },
   docs: { label: "Docs", icon: "FileText", href: "/docs" },
-  office: { label: "Office", icon: "Building2", href: "/office" },
   grey: { label: "Grey", icon: "Sparkles", href: "/grey" },
   property: { label: "Property", icon: "House", href: "/property" },
 };
